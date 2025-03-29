@@ -1,0 +1,19 @@
+const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+// Add router root configuration
+config.transformer = {
+  ...config.transformer,
+  routerRoot: 'app',
+  babelTransformerPath: require.resolve('react-native-svg-transformer'),
+};
+
+// Add resolver configuration
+config.resolver = {
+  ...config.resolver,
+  assetExts: config.resolver.assetExts.filter((ext) => ext !== 'svg'),
+  sourceExts: [...config.resolver.sourceExts, 'svg'],
+};
+
+module.exports = config; 

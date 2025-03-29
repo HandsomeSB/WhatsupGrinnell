@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "WhatsupGrinnell",
+    "jsEngine": "jsc",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "scheme": "whatsupgrinnell",
+    "ios": {
+      "bundleIdentifier": "com.anonymous.whatsupgrinnell"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

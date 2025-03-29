@@ -1,6 +1,16 @@
 import axios from 'axios';
 import { OPENAI_API_KEY } from '@env';
 
+
+// IMPORTANT:
+// TODO
+//You should never expose any secrets in the bundle of a web or mobile app. The correct usage of this client package is with a backend that proxies the OpenAI call while making sure access is secured. The baseURL parameter for this OpenAI client is thus mandatory. If you set the baseURL to https://api.openai.com/v1, you are basically exposing your OpenAI API key on the internet! This example in this repo uses Backmesh.
+// const client = new OpenAI({
+//   baseURL: 'https://api.openai.com/v1',
+//   // The backmesh proxy uses your auth provider's JWT to authorize access
+//   apiKey: OPENAI_API_KEY,
+// });
+
 /**
  * Generates a completion response from OpenAI's API
  * 
@@ -60,53 +70,30 @@ export async function generateCompletion(prompt) {
  */
 
 export async function streamCompletion(prompt, onToken) {
-  try {
-    if (!OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not configured. Please check your .env file.');
-    }
+  // try {
+  //   client.chat.completions.stream(
+  //     {
+  //       model: 'gpt-3.5-turbo-instruct',
+  //       messages: [{ role: 'user', content: prompt }],
+  //     },
+  //     (data) => {
+  //       const content = data.choices[0].delta.content;
+  //       if (content) {
+  //         onToken(onToken); // Handle the streaming completion data here
+  //       }
+  //     },
+  //     {
+  //       onError: (error) => {
+  //         console.error('SSE Error:', error); // Handle any errors here
+  //       },
+  //       onOpen: () => {
+  //         console.log('SSE connection for completion opened.'); // Handle when the connection is opened
+  //       },
+  //     }
+  //   );
 
-    const response = await axios.post(
-      'https://api.openai.com/v1/completions',
-      {
-        model: 'gpt-3.5-turbo-instruct',
-        prompt: prompt,
-        max_tokens: 1000,
-        temperature: 0.7,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        stream: true,
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream',
-        },
-        responseType: 'text',
-      }
-    );
-
-    // Split the response into lines and process each line
-    const lines = response.data.split('\n');
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6);
-        if (data === '[DONE]') {
-          continue;
-        }
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.choices[0].text) {
-            onToken(parsed.choices[0].text);
-          }
-        } catch (e) {
-          console.error('Error parsing streaming response:', e);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error in streaming completion service:', error);
-    throw new Error(error.message || 'Failed to stream completion');
-  }
-} 
+  // } catch (error) {
+  //   console.error('Error in streaming completion service:', error);
+  //   throw new Error(error.message || 'Failed to stream completion');
+  // }
+}
