@@ -33,6 +33,23 @@ export default function CompletionInput() {
     }
   };
 
+  const handleStream = async () => {
+    if (!prompt.trim()) return;
+
+    try {
+      setIsStreaming(true);
+      setCompletion('');
+      await streamCompletion(prompt, (token) => {
+        setCompletion(prev => prev + token);
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      setCompletion('Error: ' + error.message);
+    } finally {
+      setIsStreaming(false);
+    }
+  };
+
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -53,36 +70,25 @@ export default function CompletionInput() {
       </View>
 
       <View style={styles.inputContainer}>
-        <View style={styles.buttonContainer}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            value={prompt}
+            onChangeText={setPrompt}
+            placeholder="Enter your prompt..."
+            multiline
+            numberOfLines={4}
+          />
           <TouchableOpacity 
-            style={[styles.button, styles.regularButton]}
-            onPress={() => handleSubmit(false)}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonText}>
-              {isLoading && !isStreaming ? 'Generating...' : 'Generate'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.button, styles.streamButton]}
-            onPress={() => handleSubmit(true)}
-            disabled={isLoading}
+            style={[styles.streamButton, isStreaming && styles.streamingButton]}
+            onPress={handleStream}
+            disabled={isStreaming}
           >
             <Text style={styles.buttonText}>
               {isStreaming ? 'Streaming...' : 'Stream'}
             </Text>
           </TouchableOpacity>
         </View>
-
-        <TextInput
-          style={styles.input}
-          value={prompt}
-          onChangeText={setPrompt}
-          placeholder="Enter your prompt..."
-          multiline
-          numberOfLines={4}
-        />
       </View>
     </KeyboardAvoidingView>
   );
@@ -103,31 +109,31 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ddd',
   },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 10,
+  },
   input: {
+    flex: 1,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
-    marginTop: 16,
     fontSize: 16,
     minHeight: 100,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  button: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  regularButton: {
-    backgroundColor: '#007AFF',
-  },
   streamButton: {
     backgroundColor: '#34C759',
+    padding: 15,
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 100,
+  },
+  streamingButton: {
+    backgroundColor: '#28a745',
   },
   buttonText: {
     color: '#fff',

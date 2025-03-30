@@ -1,15 +1,12 @@
 import axios from 'axios';
 import { OPENAI_API_KEY } from '@env';
+import OpenAI from 'openai';
 
-
-// IMPORTANT:
-// TODO
-//You should never expose any secrets in the bundle of a web or mobile app. The correct usage of this client package is with a backend that proxies the OpenAI call while making sure access is secured. The baseURL parameter for this OpenAI client is thus mandatory. If you set the baseURL to https://api.openai.com/v1, you are basically exposing your OpenAI API key on the internet! This example in this repo uses Backmesh.
-// const client = new OpenAI({
-//   baseURL: 'https://api.openai.com/v1',
-//   // The backmesh proxy uses your auth provider's JWT to authorize access
-//   apiKey: OPENAI_API_KEY,
-// });
+// Important:
+// You should never expose any secrets in the bundle of a web or mobile app. The correct usage of this client package is with a backend that proxies the OpenAI call while making sure access is secured. The baseURL parameter for this OpenAI client is thus mandatory. If you set the baseURL to https://api.openai.com/v1, you are basically exposing your OpenAI API key on the internet! This example in this repo uses Backmesh.
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
 
 /**
  * Generates a completion response from OpenAI's API
@@ -70,30 +67,21 @@ export async function generateCompletion(prompt) {
  */
 
 export async function streamCompletion(prompt, onToken) {
-  // try {
-  //   client.chat.completions.stream(
-  //     {
-  //       model: 'gpt-3.5-turbo-instruct',
-  //       messages: [{ role: 'user', content: prompt }],
-  //     },
-  //     (data) => {
-  //       const content = data.choices[0].delta.content;
-  //       if (content) {
-  //         onToken(onToken); // Handle the streaming completion data here
-  //       }
-  //     },
-  //     {
-  //       onError: (error) => {
-  //         console.error('SSE Error:', error); // Handle any errors here
-  //       },
-  //       onOpen: () => {
-  //         console.log('SSE connection for completion opened.'); // Handle when the connection is opened
-  //       },
-  //     }
-  //   );
 
-  // } catch (error) {
-  //   console.error('Error in streaming completion service:', error);
-  //   throw new Error(error.message || 'Failed to stream completion');
-  // }
+  const stream = await openai.responses.create({
+    model: "gpt-4o",
+    input: [
+        {
+            role: "user",
+            content: prompt,
+        },
+    ],
+    stream: true,
+  });
+
+  for await (const event of stream) {
+    if (event.delta) {
+      onToken(event.delta);
+    }
+  }
 }
