@@ -1,4 +1,4 @@
-
+import axios from 'axios';
 const { XMLParser } = require('fast-xml-parser');
 const parser = new XMLParser();
 
@@ -30,8 +30,8 @@ async function getEventsFromDate(startDate, endDate) {
   const events = await fetchGrinnellChamberRSS();
   
   // Convert input date to Date object if it isn't already
-  const startDate = new Date(startDate);
-  const endDate = new Date(endDate);
+  startDate = new Date(startDate);
+  endDate = new Date(endDate);
   
   return events.rss.channel.item.filter(event => {
     // Convert RSS pubDate to Date object
@@ -41,13 +41,8 @@ async function getEventsFromDate(startDate, endDate) {
     let inrange = (val, a, b) => {
       return val >= a && val <= b;
     }
-    // Compare year, month, and day only
-    return inrange(eventDate.getFullYear(), startDate.getFullYear(), endDate.getFullYear()) &&
-           inrange(eventDate.getMonth(), startDate.getMonth(), endDate.getMonth()) &&
-           inrange(eventDate.getDate(), startDate.getDate(), endDate.getDate()) &&
-           inrange(eventDate.getHours(), startDate.getHours(), endDate.getHours()) &&
-           inrange(eventDate.getMinutes(), startDate.getMinutes(), endDate.getMinutes()) &&
-           inrange(eventDate.getSeconds(), startDate.getSeconds(), endDate.getSeconds());
+    
+    return eventDate >= startDate && eventDate <= endDate;
   });
 }
 

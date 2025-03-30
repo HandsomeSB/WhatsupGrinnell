@@ -9,6 +9,7 @@ class ToolsCollection {
    * @param {string} description - Description of what the tool does
    * @param {Object} parameters - JSON Schema object describing the parameters
    * @param {Function} handler - The actual function to execute
+   * @param {boolean} strict - Whether the tool is strict
    * 
    * @example
    * addTool("get_current_weather", "Get the current weather", {
@@ -21,12 +22,13 @@ class ToolsCollection {
    *   return "The current weather in " + args.location + " is sunny with a temperature of 70 degrees.";
    * })
    */
-  addTool(name, description, parameters, handler) {
+  addTool(name, description, parameters, handler, strict = true) {
     this.tools.push({
       name,
       description,
       parameters,
-      handler
+      handler,
+      strict
     });
   }
 
@@ -37,26 +39,27 @@ class ToolsCollection {
   getTools() {
     return this.tools.map(tool => ({
       type: "function",
-      function: {
-        name: tool.name,
-        description: tool.description,
-        parameters: tool.parameters
-      }
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.parameters,
+      strict: tool.strict ? tool.strict : true
     }));
   }
 
   /**
    * Executes a tool by name with given arguments
    * @param {string} name - Name of the tool to execute
-   * @param {Object} args - Arguments to pass to the tool
+   * @param {Object} args - Arguments to pass to the tool in JSON format
    * @returns {Promise} Result of the tool execution
    */
-  async executeTool(name, ...args) {
+  async executeTool(name, args) {
     const tool = this.tools.find(t => t.name === name);
     if (!tool) {
       throw new Error(`Tool ${name} not found`);
     }
-    return await tool.handler(...args);
+
+    const result = await tool.handler(...args);
+    return result;
   }
 }
 

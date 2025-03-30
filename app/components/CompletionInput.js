@@ -1,52 +1,25 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { generateCompletion, streamCompletion } from '../services/completion';
+import { generateCompletionWithTools } from '../services/completion';
 
 export default function CompletionInput() {
   const [prompt, setPrompt] = useState('');
   const [completion, setCompletion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
 
-  const handleSubmit = async (useStreaming = false) => {
+  const handleSend = async () => {
     if (!prompt.trim()) return;
 
     try {
       setIsLoading(true);
       setCompletion('');
-      
-      if (useStreaming) {
-        setIsStreaming(true);
-        await streamCompletion(prompt, (token) => {
-          setCompletion(prev => prev + token);
-        });
-        setIsStreaming(false);
-      } else {
-        const result = await generateCompletion(prompt);
-        setCompletion(result);
-      }
+      const result = await generateCompletionWithTools(prompt);
+      setCompletion(result);
     } catch (error) {
       console.error('Error:', error);
       setCompletion('Error: ' + error.message);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleStream = async () => {
-    if (!prompt.trim()) return;
-
-    try {
-      setIsStreaming(true);
-      setCompletion('');
-      await streamCompletion(prompt, (token) => {
-        setCompletion(prev => prev + token);
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      setCompletion('Error: ' + error.message);
-    } finally {
-      setIsStreaming(false);
     }
   };
 
@@ -61,12 +34,6 @@ export default function CompletionInput() {
             <Text style={styles.resultText}>{completion}</Text>
           </View>
         ) : null}
-
-        {isLoading && !isStreaming && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
-          </View>
-        )}
       </View>
 
       <View style={styles.inputContainer}>
@@ -80,13 +47,15 @@ export default function CompletionInput() {
             numberOfLines={4}
           />
           <TouchableOpacity 
-            style={[styles.streamButton, isStreaming && styles.streamingButton]}
-            onPress={handleStream}
-            disabled={isStreaming}
+            style={[styles.sendButton, isLoading && styles.loadingButton]}
+            onPress={handleSend}
+            disabled={isLoading}
           >
-            <Text style={styles.buttonText}>
-              {isStreaming ? 'Streaming...' : 'Stream'}
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Send</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -123,8 +92,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     minHeight: 100,
   },
-  streamButton: {
-    backgroundColor: '#34C759',
+  sendButton: {
+    backgroundColor: '#007AFF',
     padding: 15,
     borderRadius: 8,
     minWidth: 80,
@@ -132,17 +101,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 100,
   },
-  streamingButton: {
-    backgroundColor: '#28a745',
+  loadingButton: {
+    backgroundColor: '#0056b3',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  loadingContainer: {
-    marginTop: 20,
-    alignItems: 'center',
   },
   resultContainer: {
     padding: 15,
