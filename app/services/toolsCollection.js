@@ -9,6 +9,17 @@ class ToolsCollection {
    * @param {string} description - Description of what the tool does
    * @param {Object} parameters - JSON Schema object describing the parameters
    * @param {Function} handler - The actual function to execute
+   * 
+   * @example
+   * addTool("get_current_weather", "Get the current weather", {
+   *   type: "object",
+   *   properties: {
+   *     location: { type: "string", description: "The location to get the weather for" }
+   *   }
+   * }, async (args) => {
+   *   // Your tool logic here
+   *   return "The current weather in " + args.location + " is sunny with a temperature of 70 degrees.";
+   * })
    */
   addTool(name, description, parameters, handler) {
     this.tools.push({
@@ -40,14 +51,15 @@ class ToolsCollection {
    * @param {Object} args - Arguments to pass to the tool
    * @returns {Promise} Result of the tool execution
    */
-  async executeTool(name, args) {
+  async executeTool(name, ...args) {
     const tool = this.tools.find(t => t.name === name);
     if (!tool) {
       throw new Error(`Tool ${name} not found`);
     }
-    return await tool.handler(args);
+    return await tool.handler(...args);
   }
 }
 
-// Export the class
-export default ToolsCollection;
+export { ToolsCollection };
+
+

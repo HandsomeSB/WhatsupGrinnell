@@ -1,12 +1,39 @@
 import axios from 'axios';
 import { OPENAI_API_KEY } from '@env';
 import OpenAI from 'openai';
+import { ToolsCollection } from './toolsCollection';
 
 // Important:
 // You should never expose any secrets in the bundle of a web or mobile app. The correct usage of this client package is with a backend that proxies the OpenAI call while making sure access is secured. The baseURL parameter for this OpenAI client is thus mandatory. If you set the baseURL to https://api.openai.com/v1, you are basically exposing your OpenAI API key on the internet! This example in this repo uses Backmesh.
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
+
+
+
+const { XMLParser } = require('fast-xml-parser');
+const parser = new XMLParser();
+
+/**
+ * Fetches and parses the Grinnell Chamber RSS feed
+ * Returns a JSON object with the RSS feed content
+ * List of events in response.rss.channel.item
+ * 
+ * @returns {Promise<Object>} - Returns the RSS feed content
+ * @throws {Error} If the fetch request fails
+ */
+async function fetchGrinnellChamberRSS() {
+  try {
+    const response = await axios.get('https://www.grinnellchamber.org/en/events/community_calendar/?action=rss');
+    return parser.parse(response.data);
+  } catch (error) {
+    console.error('Error fetching Grinnell Chamber RSS:', error);
+    throw new Error('Failed to fetch Grinnell Chamber events');
+  }
+}
+
+const tc = new ToolsCollection();
+tc.addTool("fetchGrinnellChamberRSS", "Get events happening in Grinnell", {}, fetchGrinnellChamberRSS);
 
 /**
  * Generates a completion response from OpenAI's API
@@ -68,20 +95,21 @@ export async function generateCompletion(prompt) {
 
 export async function streamCompletion(prompt, onToken) {
 
-  const stream = await openai.responses.create({
-    model: "gpt-4o",
-    input: [
-        {
-            role: "user",
-            content: prompt,
-        },
-    ],
-    stream: true,
-  });
+  // const stream = await openai.responses.create({
+  //   model: "gpt-4o",
+  //   input: [
+  //       {
+  //           role: "user",
+  //           content: prompt,
+  //       },
+  //   ],
+  //   stream: true,
+  // });
 
-  for await (const event of stream) {
-    if (event.delta) {
-      onToken(event.delta);
-    }
-  }
+  // for await (const event of stream) {
+  //   if (event.delta) {
+  //     onToken(event.delta);
+  //   }
+  // }
+
 }
