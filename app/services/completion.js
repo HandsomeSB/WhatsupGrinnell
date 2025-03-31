@@ -84,7 +84,7 @@ export async function generateCompletionWithTools(prompt) {
     { role: "user", content: prompt }
   ];
 
-  const response = await openai.responses.create({
+  let response = await openai.responses.create({
     model: "gpt-4o",
     input: input,
     tools: tc.getTools(),
@@ -94,27 +94,26 @@ export async function generateCompletionWithTools(prompt) {
   const output = response.output;
   const toolCalls = output.filter(item => item.type === "function_call");
 
-  console.log(toolCalls);
+  if(toolCalls.length > 0) {
+    for (const toolCall of toolCalls) {
+      const toolName = toolCall.name;
+      const toolArgs = JSON.parse(toolCall.arguments);
+      const result = await tc.executeTool(toolName, Object.values(toolArgs));
+      input.push(toolCall);
+      input.push({                               // append result message
+        type: "function_call_output",
+        call_id: toolCall.call_id,
+        output: JSON.stringify(result)
+      });
+    }
 
-  for (const toolCall of toolCalls) {
-    const toolName = toolCall.name;
-    const toolArgs = JSON.parse(toolCall.arguments);
-    const result = await tc.executeTool(toolName, Object.values(toolArgs));
-    input.push(toolCall);
-    input.push({                               // append result message
-      type: "function_call_output",
-      call_id: toolCall.call_id,
-      output: JSON.stringify(result)
+    response = await openai.responses.create({
+      model: "gpt-4o-mini",
+      input: input,
     });
-
   }
 
-  const finalResponse = await openai.responses.create({
-    model: "gpt-4o-mini",
-    input: input,
-  });
-
-  return finalResponse.output_text;
+  return response.output_text;
 }
 
 /**

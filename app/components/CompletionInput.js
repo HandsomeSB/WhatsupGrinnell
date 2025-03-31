@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
 import { generateCompletionWithTools } from '../services/completion';
 
 export default function CompletionInput() {
   const [prompt, setPrompt] = useState('');
   const [completion, setCompletion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [inputHeight, setInputHeight] = useState(40);
 
   const handleSend = async () => {
     if (!prompt.trim()) return;
@@ -15,6 +16,7 @@ export default function CompletionInput() {
       setCompletion('');
       const result = await generateCompletionWithTools(prompt);
       setCompletion(result);
+      setPrompt('');
     } catch (error) {
       console.error('Error:', error);
       setCompletion('Error: ' + error.message);
@@ -23,100 +25,132 @@ export default function CompletionInput() {
     }
   };
 
+  const handleKeyPress = (event) => {
+    if (event.nativeEvent.key === 'Enter' && !event.nativeEvent.shiftKey) {
+      event.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <View style={styles.contentContainer}>
-        {completion ? (
-          <View style={styles.resultContainer}>
-            <Text style={styles.resultText}>{completion}</Text>
-          </View>
-        ) : null}
-      </View>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          <ScrollView 
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+          >
+            {completion ? (
+              <View style={styles.messageContainer}>
+                <View style={styles.messageBubble}>
+                  <Text style={styles.messageText}>{completion}</Text>
+                </View>
+              </View>
+            ) : null}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
 
       <View style={styles.inputContainer}>
         <View style={styles.inputWrapper}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { height: Math.max(40, inputHeight) }]}
             value={prompt}
             onChangeText={setPrompt}
-            placeholder="Enter your prompt..."
+            placeholder="Message ChatGPT..."
+            placeholderTextColor="#8e8ea0"
             multiline
-            numberOfLines={4}
+            onContentSizeChange={(event) => {
+              setInputHeight(event.nativeEvent.contentSize.height);
+            }}
+            onKeyPress={handleKeyPress}
           />
-          <TouchableOpacity 
-            style={[styles.sendButton, isLoading && styles.loadingButton]}
-            onPress={handleSend}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Send</Text>
-            )}
-          </TouchableOpacity>
         </View>
+        <TouchableOpacity 
+          style={[styles.sendButton]}
+          onPress={handleSend}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Send</Text>
+          )}
+        </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
+    backgroundColor: '#343541',
   },
-  contentContainer: {
+  safeArea: {
     flex: 1,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     padding: 20,
+  },
+  messageContainer: {
+    marginBottom: 20,
+  },
+  messageBubble: {
+    backgroundColor: '#444654',
+    borderRadius: 8,
+    padding: 16,
+    maxWidth: '100%',
+  },
+  messageText: {
+    color: '#fff',
+    fontSize: 16,
+    lineHeight: 24,
   },
   inputContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: 10,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 10,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: '#565869',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    alignItems: 'center',
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 10,
+    width: '100%',
+    padding: 8,
+    marginBottom: 10,
   },
   input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+    width: '100%',
+    color: '#fff',
     fontSize: 16,
-    minHeight: 100,
+    minHeight: 40,
+    maxHeight: 120,
+    padding: 8,
   },
   sendButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
-    minWidth: 80,
+    backgroundColor: '#19c37d',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 100,
-  },
-  loadingButton: {
-    backgroundColor: '#0056b3',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  resultContainer: {
-    padding: 15,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  resultText: {
-    fontSize: 16,
-    lineHeight: 24,
   },
 }); 
