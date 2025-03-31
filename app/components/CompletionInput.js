@@ -113,11 +113,7 @@ export default function CompletionInput() {
         </SafeAreaView>
       </Animated.View>
 
-      <View style={[styles.inputContainer, { zIndex: 2 }]}
-        onLayout={(event) => {
-          setInputContainerHeight(event.nativeEvent.layout.height);
-        }}
-      >
+      <View style={[styles.inputContainer, { zIndex: 2 }]}>
         <View style={styles.inputWrapper}>
           <TextInput
             ref={inputRef}
