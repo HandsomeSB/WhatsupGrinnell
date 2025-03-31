@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Animated, Dimensions } from 'react-native';
 import { generateCompletionWithTools } from '../services/completion';
 
 export default function CompletionInput() {
@@ -7,6 +7,31 @@ export default function CompletionInput() {
   const [completion, setCompletion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [inputHeight, setInputHeight] = useState(40);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const inputRef = useRef(null);
+  const screenHeight = Dimensions.get('window').height;
+
+  const handleInputPress = () => {
+    setIsExpanded(true);
+    Animated.spring(slideAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 10,
+    }).start();
+  };
+
+  const handleCollapse = () => {
+    setIsExpanded(false);
+    inputRef.current?.blur();
+    Animated.spring(slideAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 10,
+    }).start();
+  };
 
   const handleSend = async () => {
     if (!prompt.trim()) return;
@@ -32,38 +57,76 @@ export default function CompletionInput() {
     }
   };
 
+  const messageContainerTranslateY = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [screenHeight, screenHeight * 0.3],
+  });
+
+  const overlayOpacity = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.5],
+  });
+
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardView}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-        >
-          <ScrollView 
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
+      <Animated.View 
+        style={[
+          styles.overlay,
+          {
+            opacity: overlayOpacity,
+          }
+        ]}
+      >
+        <TouchableOpacity 
+          style={styles.overlayTouchable}
+          activeOpacity={1}
+          onPress={handleCollapse}
+        />
+      </Animated.View>
+      <Animated.View 
+        style={[
+          styles.messageContainerWrapper,
+          {
+            transform: [{ translateY: messageContainerTranslateY }],
+            zIndex: 1,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+          }
+        ]}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.keyboardView}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
           >
-            {completion ? (
-              <View style={styles.messageContainer}>
-                <View style={styles.messageBubble}>
-                  <Text style={styles.messageText}>{completion}</Text>
+            <ScrollView 
+              style={styles.scrollView}
+              contentContainerStyle={styles.scrollContent}
+            >
+              {completion ? (
+                <View style={styles.messageContainer}>
+                  <View style={[styles.messageBubble, { marginBottom: 200 }]}>
+                    <Text style={styles.messageText}>{completion}</Text>
+                  </View>
                 </View>
-              </View>
-            ) : null}
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+              ) : null}
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </Animated.View>
 
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, { zIndex: 2 }]}>
         <View style={styles.inputWrapper}>
           <TextInput
+            ref={inputRef}
             style={[styles.input, { height: Math.max(40, inputHeight) }]}
             value={prompt}
             onChangeText={setPrompt}
             placeholder="Message ChatGPT..."
             placeholderTextColor="#8e8ea0"
             multiline
+            onFocus={handleInputPress}
             onContentSizeChange={(event) => {
               setInputHeight(event.nativeEvent.contentSize.height);
             }}
@@ -88,7 +151,31 @@ export default function CompletionInput() {
 
 const styles = StyleSheet.create({
   container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 1)',
+    zIndex: 0,
+  },
+  overlayTouchable: {
     flex: 1,
+  },
+  messageContainerWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: '#343541',
   },
   safeArea: {
@@ -105,6 +192,8 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     marginBottom: 20,
+    borderColor: 'blue',
+    borderWidth: 1,
   },
   messageBubble: {
     backgroundColor: '#444654',
@@ -120,12 +209,14 @@ const styles = StyleSheet.create({
   inputContainer: {
     padding: 10,
     paddingBottom: Platform.OS === 'ios' ? 34 : 10,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#565869',
+    backgroundColor: '#0f0f0f',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   inputWrapper: {
     width: '100%',

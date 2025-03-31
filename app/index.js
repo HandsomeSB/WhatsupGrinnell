@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import CompletionInput from './components/CompletionInput';
 import { Stack } from 'expo-router';
 
@@ -11,7 +11,19 @@ export default function Home() {
           headerShown: false
         }} 
       />
-
+      <View style={{
+        width: 200,
+        height: 100,
+        backgroundColor: '#444654',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+        alignSelf: 'center',
+        marginTop: 40,
+      }}>
+        <Text style={{color: '#fff'}}>Hello</Text>
+      </View>
+      
       <CompletionInput style={styles.completionInputContainer}/>
     </View>
   );
