@@ -7,13 +7,11 @@ export default function CompletionInput() {
   const [completion, setCompletion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [inputHeight, setInputHeight] = useState(40);
-  const [isExpanded, setIsExpanded] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const inputRef = useRef(null);
   const screenHeight = Dimensions.get('window').height;
 
   const handleInputPress = () => {
-    setIsExpanded(true);
     Animated.spring(slideAnim, {
       toValue: 1,
       useNativeDriver: true,
@@ -23,7 +21,6 @@ export default function CompletionInput() {
   };
 
   const handleCollapse = () => {
-    setIsExpanded(false);
     inputRef.current?.blur();
     Animated.spring(slideAnim, {
       toValue: 0,
@@ -101,12 +98,12 @@ export default function CompletionInput() {
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
           >
             <ScrollView 
-              style={styles.scrollView}
+              style={[styles.scrollView]}
               contentContainerStyle={styles.scrollContent}
             >
               {completion ? (
                 <View style={styles.messageContainer}>
-                  <View style={[styles.messageBubble, { marginBottom: 200 }]}>
+                  <View style={[styles.messageBubble]}>
                     <Text style={styles.messageText}>{completion}</Text>
                   </View>
                 </View>
@@ -116,7 +113,11 @@ export default function CompletionInput() {
         </SafeAreaView>
       </Animated.View>
 
-      <View style={[styles.inputContainer, { zIndex: 2 }]}>
+      <View style={[styles.inputContainer, { zIndex: 2 }]}
+        onLayout={(event) => {
+          setInputContainerHeight(event.nativeEvent.layout.height);
+        }}
+      >
         <View style={styles.inputWrapper}>
           <TextInput
             ref={inputRef}
@@ -186,6 +187,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    maxHeight: '55%', // This is hardcoded, should change later
   },
   scrollContent: {
     padding: 20,
