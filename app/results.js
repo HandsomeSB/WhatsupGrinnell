@@ -70,7 +70,11 @@ export default function Results() {
       <SafeAreaView style={styles.safeArea}>
         <FlatList
           data={data}
+          // ListEmptyComponent={
+          //   isLoading ? <LoadingIndicator /> : <EmptyListMessage />
+          // }
           renderItem={({ item }) => <EventItem event={item} />}
+          keyExtractor={(item) => item.title}
         />
       </SafeAreaView>
     </View>

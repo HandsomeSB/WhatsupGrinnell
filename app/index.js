@@ -34,6 +34,9 @@ export default function Home() {
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearch}
           />
+          <TouchableOpacity onPress={() => router.push('/voiceChat')}>
+            <Text>Voice Chat</Text>
+          </TouchableOpacity>
         </View>
         <EventList />
       </SafeAreaView>
