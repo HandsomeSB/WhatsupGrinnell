@@ -46,4 +46,4 @@ async function getEventsFromDate(startDate, endDate) {
   });
 }
 
-export { getEventsFromDate };
+export { fetchGrinnellChamberRSS,getEventsFromDate };

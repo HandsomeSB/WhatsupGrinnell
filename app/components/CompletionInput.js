@@ -6,12 +6,14 @@ export default function CompletionInput() {
   const [prompt, setPrompt] = useState('');
   const [completion, setCompletion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [inputHeight, setInputHeight] = useState(40);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const inputRef = useRef(null);
   const screenHeight = Dimensions.get('window').height;
 
   const handleInputPress = () => {
+    setIsExpanded(true);
     Animated.spring(slideAnim, {
       toValue: 1,
       useNativeDriver: true,
@@ -22,12 +24,15 @@ export default function CompletionInput() {
 
   const handleCollapse = () => {
     inputRef.current?.blur();
+
     Animated.spring(slideAnim, {
       toValue: 0,
       useNativeDriver: true,
       tension: 65,
       friction: 10,
-    }).start();
+    }).start(() => {
+      setIsExpanded(false);
+    });
   };
 
   const handleSend = async () => {
@@ -56,7 +61,7 @@ export default function CompletionInput() {
 
   const messageContainerTranslateY = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [screenHeight, screenHeight * 0.3],
+    outputRange: [screenHeight*0.85, screenHeight * 0.3],
   });
 
   const overlayOpacity = slideAnim.interpolate({
@@ -65,7 +70,7 @@ export default function CompletionInput() {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { top: isExpanded ? 0 : null }]}>
       <Animated.View 
         style={[
           styles.overlay,

@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
 import CompletionInput from './components/CompletionInput';
 import { Stack } from 'expo-router';
+import EventList from './components/EventList';
 
 export default function Home() {
   return (
@@ -11,21 +12,9 @@ export default function Home() {
           headerShown: false
         }} 
       />
-      <SafeAreaView style={{flex: 1}}>
-        <View style={{
-          width: 200,
-          height: 100,
-          backgroundColor: '#444654',
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderRadius: 8,
-          alignSelf: 'center',
-          marginTop: 40,
-        }}>
-          <Text style={{color: '#fff'}}>Hello</Text>
-        </View>
+      <SafeAreaView style={styles.safeArea}>
+        <EventList />
       </SafeAreaView>
-      
       
       <CompletionInput style={styles.completionInputContainer}/>
     </View>
@@ -37,7 +26,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#343541',
   },
-  completionInputContainer: {
+  safeArea: {
     flex: 1,
+  },
+  completionInputContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 }); 
