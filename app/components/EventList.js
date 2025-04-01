@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import EventItem from './EventItem';
 import { fetchGrinnellChamberRSS } from '../services/tools';
+import { useRouter } from 'expo-router';
 
 export default function EventList() {
   const [listData, setListData] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -15,8 +17,10 @@ export default function EventList() {
   }, []);
 
   const handleEventPress = (event) => {
-    // Handle event press - you can add navigation or modal here
-    console.log('Event pressed:', event);
+    router.push({
+      pathname: '/eventDetails',
+      params: { event: JSON.stringify(event) }
+    });
   };
 
   return (
