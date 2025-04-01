@@ -1,10 +1,22 @@
-import React from 'react';
-import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
 import CompletionInput from './components/CompletionInput';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import EventList from './components/EventList';
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push({
+        pathname: '/results',
+        params: { query: searchQuery }
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Stack.Screen 
@@ -13,10 +25,18 @@ export default function Home() {
         }} 
       />
       <SafeAreaView style={styles.safeArea}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search..."
+            placeholderTextColor="#666"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
+          />
+        </View>
         <EventList />
       </SafeAreaView>
-      
-      <CompletionInput style={styles.completionInputContainer}/>
     </View>
   );
 }
@@ -28,6 +48,17 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  searchContainer: {
+    padding: 10,
+    backgroundColor: '#343541',
+  },
+  searchInput: {
+    backgroundColor: '#40414f',
+    padding: 10,
+    borderRadius: 8,
+    color: '#ffffff',
+    fontSize: 16,
   },
   completionInputContainer: {
     position: 'absolute',
