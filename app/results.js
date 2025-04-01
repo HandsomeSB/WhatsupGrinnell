@@ -1,9 +1,63 @@
-import React from 'react';
-import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, SafeAreaView, FlatList } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
+import { generateCompletionWithTools } from './services/completion';
+import EventItem from './components/EventItem';
 
 export default function Results() {
   const { query } = useLocalSearchParams();
+  const [ data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      jsonSchema = {
+        "type": "json_schema",
+        "name": "event_list",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "events": {
+              "type": "array",
+              "description": "A list of events.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "The title of the event."
+                  },
+                  "pubDate": {
+                    "type": "string",
+                    "description": "The publication date of the event."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "A detailed description of the event."
+                  }
+                },
+                "required": [
+                  "title",
+                  "pubDate",
+                  "description"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "events"
+          ],
+          "additionalProperties": false
+        },
+        "strict": true
+      }
+      console.log(query);
+      const results = await generateCompletionWithTools(query, jsonSchema);
+      const resultJson = JSON.parse(results);
+      setData(resultJson.events); 
+    };
+    fetchResults();
+  }, [query]);
 
   return (
     <View style={styles.container}>
@@ -14,7 +68,10 @@ export default function Results() {
         }} 
       />
       <SafeAreaView style={styles.safeArea}>
-        <Text style={styles.text}>Search Results for: {query}</Text>
+        <FlatList
+          data={data}
+          renderItem={({ item }) => <EventItem event={item} />}
+        />
       </SafeAreaView>
     </View>
   );

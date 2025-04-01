@@ -71,10 +71,11 @@ export async function generateCompletion(prompt) {
  * Generates a completion response from OpenAI's API with tools
  * 
  * @param {string} prompt - The input prompt to generate completion for
+ * @param {string} responseFormat - The response format to use
  * @returns {Promise<string>} - Returns the generated completion as a string
  * 
  */
-export async function generateCompletionWithTools(prompt) {
+export async function generateCompletionWithTools(prompt, responseFormat = null) {
   let input = [
     { role: "system", content: `
       You are WhatsupGrinnell, a large language model trained by OpenAI.
@@ -94,6 +95,8 @@ export async function generateCompletionWithTools(prompt) {
   const output = response.output;
   const toolCalls = output.filter(item => item.type === "function_call");
 
+  // console.log("Tool calls: ", toolCalls);
+
   if(toolCalls.length > 0) {
     for (const toolCall of toolCalls) {
       const toolName = toolCall.name;
@@ -110,9 +113,14 @@ export async function generateCompletionWithTools(prompt) {
     response = await openai.responses.create({
       model: "gpt-4o-mini",
       input: input,
+      text: {
+        format: responseFormat ? responseFormat : {type: "text"}
+      }
     });
   }
 
+  // console.log("Inputs: ", input);
+  // console.log("Response: ", response);
   return response.output_text;
 }
 
