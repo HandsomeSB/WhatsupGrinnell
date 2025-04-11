@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SectionList, TouchableOpacity, Dimensions } from 'react-native';
 import EventItem from './EventItem';
-import { fetchGrinnellChamberRSS } from '../services/tools';
+import {updateAndGetCachedRSS} from '../services/chamberRSS';
 import { useRouter } from 'expo-router';
 
 export default function EventList() {
@@ -10,28 +10,11 @@ export default function EventList() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const events = await fetchGrinnellChamberRSS();
-      const groupedEvents = groupEventsByDate(events.rss.channel.item);
+      const groupedEvents = await updateAndGetCachedRSS();
       setSections(groupedEvents);
     };
     fetchEvents();
   }, []);
-
-  const groupEventsByDate = (events) => {
-    const grouped = events.reduce((acc, event) => {
-      const eventDate = new Date(event.pubDate).toDateString(); // Group by date
-      if (!acc[eventDate]) {
-        acc[eventDate] = [];
-      }
-      acc[eventDate].push(event);
-      return acc;
-    }, {});
-
-    return Object.keys(grouped).map((date) => ({
-      title: date,
-      data: grouped[date],
-    }));
-  };
 
   const handleEventPress = (event) => {
     router.push({

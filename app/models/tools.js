@@ -1,24 +1,4 @@
-import axios from 'axios';
-const { XMLParser } = require('fast-xml-parser');
-const parser = new XMLParser();
-
-/**
- * Fetches and parses the Grinnell Chamber RSS feed
- * Returns a JSON object with the RSS feed content
- * List of events in response.rss.channel.item
- * 
- * @returns {Promise<Object>} - Returns the RSS feed content
- * @throws {Error} If the fetch request fails
- */
-async function fetchGrinnellChamberRSS() {
-  try {
-    const response = await axios.get('https://www.grinnellchamber.org/en/events/community_calendar/?action=rss');
-    return parser.parse(response.data);
-  } catch (error) {
-    console.error('Error fetching Grinnell Chamber RSS:', error);
-    throw new Error('Failed to fetch Grinnell Chamber events');
-  }
-}
+import { fetchGrinnellChamberRSS } from "../services/chamberRSS";
 
 /**
  * Gets events happening on a given date range

@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { OPENAI_API_KEY } from '@env';
 import OpenAI from 'openai';
-import { ToolsCollection } from './toolsCollection';
-import { getEventsFromDate } from './tools';
+import { ToolsCollection } from '../models/toolsCollection';
+import { getEventsFromDate } from '../models/tools';
 // Important:
 // You should never expose any secrets in the bundle of a web or mobile app. The correct usage of this client package is with a backend that proxies the OpenAI call while making sure access is secured. The baseURL parameter for this OpenAI client is thus mandatory. If you set the baseURL to https://api.openai.com/v1, you are basically exposing your OpenAI API key on the internet! This example in this repo uses Backmesh.
 const openai = new OpenAI({
