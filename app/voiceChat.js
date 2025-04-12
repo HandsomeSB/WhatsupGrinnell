@@ -14,11 +14,34 @@ import { generateCompletionWithTools } from "./services/completion";
 import { Audio } from "expo-av";
 
 export default function VoiceChatScreen() {
-  const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcription, setTranscription] = useState("");
+  /** Recording object */
   const [recording, setRecording] = useState(null);
+  /** Is recording state */
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioData, setAudioData] = useState([]);
+  const maxDataPoints = 50; // Number of data points to display
   const router = useRouter();
+
+  const processAudioData = (data) => {
+    // Process the data from onRecordingStatusUpdate
+    if (data && data.metering !== undefined) {
+      // metering value is in dB (negative values, where 0 is max volume)
+      // Convert to a positive value between 0-1 for visualization
+      const normalizedValue = Math.max(0, 1 + data.metering / 100);
+      
+      // Update audio data array
+      setAudioData(prevData => {
+        const newData = [...prevData, normalizedValue];
+        // Keep only the most recent data points
+        if (newData.length > maxDataPoints) {
+          return newData.slice(newData.length - maxDataPoints);
+        }
+        return newData;
+      });
+    }
+  }
 
   async function startRecording() {
     try {
@@ -29,7 +52,9 @@ export default function VoiceChatScreen() {
       });
 
       const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
+        Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        (status) => processAudioData(status),
+        100 // Update interval in milliseconds
       );
       setRecording(recording);
       setIsRecording(true);
@@ -94,7 +119,16 @@ export default function VoiceChatScreen() {
 
       <View style={styles.content}>
         <TouchableOpacity
-          style={[styles.recordButton, isRecording && styles.recordingButton]}
+          style={[
+            styles.recordButton,
+            {
+              // audioData[-1]
+              width: 84 * (audioData[audioData.length - 1] || 0 + 1),
+              height: 84 * (audioData[audioData.length - 1] || 0 + 1),
+              borderRadius: 42 * (audioData[audioData.length - 1] || 0 + 1),
+              backgroundColor: "red"
+            }
+          ]}
           onPress={handlePress}
           disabled={isTranscribing}
         >
@@ -165,9 +199,6 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
-  },
-  recordingButton: {
-    backgroundColor: "#1E1E1E",
   },
   innerCircle: {
     width: 64,
