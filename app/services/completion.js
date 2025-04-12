@@ -2,7 +2,7 @@ import axios from 'axios';
 import { OPENAI_API_KEY } from '@env';
 import OpenAI from 'openai';
 import { ToolsCollection } from '../models/toolsCollection';
-import { getEventsFromDate } from '../models/tools';
+import { getEventsFromDateCached } from '../models/tools';
 // Important:
 // You should never expose any secrets in the bundle of a web or mobile app. The correct usage of this client package is with a backend that proxies the OpenAI call while making sure access is secured. The baseURL parameter for this OpenAI client is thus mandatory. If you set the baseURL to https://api.openai.com/v1, you are basically exposing your OpenAI API key on the internet! This example in this repo uses Backmesh.
 const openai = new OpenAI({
@@ -10,7 +10,7 @@ const openai = new OpenAI({
 });
 
 const tc = new ToolsCollection();
-tc.addTool("getEventsFromDate", "Gets events from a given date range at Grinnell, IA", { 
+tc.addTool("getEventsFromDateCached", "Gets events from a given date range at Grinnell, IA", { 
     type: "object",
     properties: {
       startDate: { type: "string", description: "The start date of the range."},
@@ -19,7 +19,7 @@ tc.addTool("getEventsFromDate", "Gets events from a given date range at Grinnell
     required: ["startDate", "endDate"],
     additionalProperties: false,
   }, 
-  getEventsFromDate,
+  getEventsFromDateCached,
 );
 
 /**
@@ -79,7 +79,10 @@ export async function generateCompletionWithTools(prompt, responseFormat = null)
   let input = [
     { role: "system", content: `
       You are WhatsupGrinnell, a large language model trained by OpenAI.
-      You are chatting with the user via the mobile app. This means most of the time your lines should be a sentence or two, unless the user's request requires reasoning or long-form outputs. Never use emojis, unless explicitly asked to. 
+      You are chatting with the user via the mobile app. 
+      This means most of the time your lines should be a sentence or two, 
+      unless the user's request requires reasoning or long-form outputs. 
+      Never use emojis, unless explicitly asked to. 
       Current date: ${new Date().toISOString()}
     `},
     { role: "user", content: prompt }
@@ -95,13 +98,12 @@ export async function generateCompletionWithTools(prompt, responseFormat = null)
   const output = response.output;
   const toolCalls = output.filter(item => item.type === "function_call");
 
-  // console.log("Tool calls: ", toolCalls);
-
   if(toolCalls.length > 0) {
     for (const toolCall of toolCalls) {
       const toolName = toolCall.name;
       const toolArgs = JSON.parse(toolCall.arguments);
       const result = await tc.executeTool(toolName, Object.values(toolArgs));
+
       input.push(toolCall);
       input.push({                               // append result message
         type: "function_call_output",
@@ -119,8 +121,6 @@ export async function generateCompletionWithTools(prompt, responseFormat = null)
     });
   }
 
-  // console.log("Inputs: ", input);
-  // console.log("Response: ", response);
   return response.output_text;
 }
 

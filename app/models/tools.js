@@ -1,4 +1,4 @@
-import { fetchGrinnellChamberRSS } from "../services/chamberRSS";
+import { fetchGrinnellChamberRSS, updateAndGetCachedRSS } from "../services/chamberRSS";
 
 /**
  * Gets events happening on a given date range
@@ -26,4 +26,28 @@ async function getEventsFromDate(startDate, endDate) {
   });
 }
 
-export { fetchGrinnellChamberRSS,getEventsFromDate };
+/**
+ * Gets events happening on a given date range
+ * 
+ * @param {string} date - The date to get events for
+ * @returns {Promise<Array>} - Returns an array of events
+ */
+async function getEventsFromDateCached(startDate, endDate) {
+  const events = await updateAndGetCachedRSS();
+
+  startDate = new Date(startDate);
+  endDate = new Date(endDate);
+  
+  let output = [];
+
+  events.forEach(eventDay => {
+    const eventDate = new Date(eventDay["title"]);
+    if (eventDate >= startDate && eventDate <= endDate) {
+      output.push(eventDay);
+    }
+  });
+
+  return output;
+}
+
+export { getEventsFromDate, getEventsFromDateCached };

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SectionList, TouchableOpacity, Dimensions } fro
 import EventItem from './EventItem';
 import {updateAndGetCachedRSS} from '../services/chamberRSS';
 import { useRouter } from 'expo-router';
+import { getEventsFromDateCached } from '../models/tools';
 
 export default function EventList() {
   const [sections, setSections] = useState([]);
