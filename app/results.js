@@ -7,7 +7,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { generateCompletionWithTools } from "./services/completion";
 import EventItem from "./components/EventItem";
 
@@ -16,6 +16,7 @@ export default function Results() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -108,6 +109,13 @@ export default function Results() {
     </View>
   );
 
+  const handleEventPress = (event) => {
+    router.push({
+      pathname: "/eventDetails",
+      params: { event: JSON.stringify(event) },
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -126,7 +134,9 @@ export default function Results() {
           <FlatList
             data={data}
             ListEmptyComponent={renderEmptyState}
-            renderItem={({ item }) => <EventItem event={item} />}
+            renderItem = {
+              ({ item }) => <EventItem event={item} onPress={handleEventPress}/>
+            }
             keyExtractor={(item, index) => item.title + index}
             contentContainerStyle={styles.listContent}
           />

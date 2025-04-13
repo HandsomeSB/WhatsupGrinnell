@@ -113,7 +113,7 @@ export async function generateCompletionWithTools(prompt, responseFormat = null)
     }
 
     response = await openai.responses.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o-mini-2024-07-18",
       input: input,
       text: {
         format: responseFormat ? responseFormat : {type: "text"}
