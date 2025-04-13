@@ -121,12 +121,11 @@ export default function VoiceChatScreen() {
         <TouchableOpacity
           style={[
             styles.recordButton,
-            {
-              // audioData[-1]
-              width: 84 * (audioData[audioData.length - 1] || 0 + 1),
-              height: 84 * (audioData[audioData.length - 1] || 0 + 1),
-              borderRadius: 42 * (audioData[audioData.length - 1] || 0 + 1),
-              backgroundColor: "red"
+            isRecording && {
+              width: 84 * (audioData[audioData.length - 1]*2 || 0 + 1),
+              height: 84 * (audioData[audioData.length - 1]*2 || 0 + 1),
+              borderRadius: 42 * (audioData[audioData.length - 1]*2 || 0 + 1),
+              backgroundColor: "#1E1E1E",
             }
           ]}
           onPress={handlePress}
