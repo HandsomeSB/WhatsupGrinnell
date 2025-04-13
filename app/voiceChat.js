@@ -21,6 +21,7 @@ export default function VoiceChatScreen() {
   const [recording, setRecording] = useState(null);
   /** Is recording state */
   const [isRecording, setIsRecording] = useState(false);
+  /** NOTE could be removed but kept just in case */
   const [audioData, setAudioData] = useState([]);
   const maxDataPoints = 50; // Number of data points to display
   const radiusMultiplier = useRef(new Animated.Value(1)).current;
