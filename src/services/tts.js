@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Audio } from 'expo-av';
 import { OPENAI_API_KEY } from '@env';
+import { Buffer } from 'buffer';
 
 /**
  * Generates and plays audio from text using OpenAI's TTS API

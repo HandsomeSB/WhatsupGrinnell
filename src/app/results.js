@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { generateCompletionWithTools } from "./services/completion";
-import EventItem from "./components/EventItem";
+import { generateCompletionWithTools } from "../services/completion";
+import EventItem from "../components/EventItem";
 
 export default function Results() {
   const { query } = useLocalSearchParams();

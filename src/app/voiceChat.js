@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import { useState, useEffect, useRef} from "react";
 import { Stack, useRouter } from "expo-router";
-import { textToSpeech } from "./services/tts";
-import { transcribeAudio } from "./services/transcription";
-import { generateCompletionWithTools } from "./services/completion";
+import { textToSpeech } from "../services/tts";
+import { transcribeAudio } from "../services/transcription";
+import { generateCompletionWithTools } from "../services/completion";
 import { Audio } from "expo-av";
 
 export default function VoiceChatScreen() {

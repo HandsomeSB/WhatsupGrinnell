@@ -19,6 +19,7 @@ export default function EventList({ selectedDate }) {
   useEffect(() => {
     const fetchEvents = async () => {
       const eventsByDate = await updateAndGetCachedRSS();
+      console.log("Fetched events:", eventsByDate);
       setGroupedEvents(eventsByDate);
       setLoading(false);
     };

@@ -10,8 +10,8 @@ import {
   Platform,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
-import EventList from "./components/EventList";
-import DateSelector from "./components/DateSelector";
+import EventList from "../components/EventList";
+import DateSelector from "../components/DateSelector";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");

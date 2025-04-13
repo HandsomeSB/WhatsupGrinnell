@@ -64,7 +64,6 @@ export async function updateAndGetCachedRSS() {
         fetchGrinnellChamberRSSDateReduced().then(async (data) => {
             storeData(cacheKey, data);
         });
-
         return cachedData;
     } else {
         const data = await fetchGrinnellChamberRSSDateReduced()
