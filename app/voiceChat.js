@@ -5,8 +5,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  Animated,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
 import { Stack, useRouter } from "expo-router";
 import { textToSpeech } from "./services/tts";
 import { transcribeAudio } from "./services/transcription";
@@ -22,6 +23,7 @@ export default function VoiceChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioData, setAudioData] = useState([]);
   const maxDataPoints = 50; // Number of data points to display
+  const radiusMultiplier = useRef(new Animated.Value(1)).current;
   const router = useRouter();
 
   const processAudioData = (data) => {
@@ -40,6 +42,14 @@ export default function VoiceChatScreen() {
         }
         return newData;
       });
+
+      // Calculate multiplier and animate using scale transform
+      const multiplier = (normalizedValue || 0) * 0.5 + 1;
+      Animated.timing(radiusMultiplier, {
+        toValue: multiplier,
+        duration: 100,
+        useNativeDriver: true, // Enable native driver for better performance
+      }).start();
     }
   }
 
@@ -70,6 +80,14 @@ export default function VoiceChatScreen() {
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
       setRecording(null);
+      
+      // Reset animation when stopping
+      Animated.timing(radiusMultiplier, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }).start();
+      
       return uri;
     } catch (err) {
       console.error("Failed to stop recording", err);
@@ -118,37 +136,38 @@ export default function VoiceChatScreen() {
       />
 
       <View style={styles.content}>
-        <TouchableOpacity
+        <Animated.View
           style={[
-            styles.recordButton,
+            styles.recordButtonContainer,
             isRecording && {
-              width: 84 * (audioData[audioData.length - 1]*2 || 0 + 1),
-              height: 84 * (audioData[audioData.length - 1]*2 || 0 + 1),
-              borderRadius: 42 * (audioData[audioData.length - 1]*2 || 0 + 1),
-              backgroundColor: "#1E1E1E",
+              transform: [{ scale: radiusMultiplier }],
             }
           ]}
-          onPress={handlePress}
-          disabled={isTranscribing}
         >
-          <View
-            style={[
-              styles.innerCircle,
-              isRecording && styles.recordingInnerCircle,
-            ]}
+          <TouchableOpacity
+            style={styles.recordButton}
+            onPress={handlePress}
+            disabled={isTranscribing}
           >
-            {isTranscribing ? (
-              <ActivityIndicator size="large" color="#fff" />
-            ) : (
-              <View
-                style={[
-                  styles.recordIndicator,
-                  isRecording && styles.recordingIndicator,
-                ]}
-              />
-            )}
-          </View>
-        </TouchableOpacity>
+            <View
+              style={[
+                styles.innerCircle,
+                isRecording && styles.recordingInnerCircle,
+              ]}
+            >
+              {isTranscribing ? (
+                <ActivityIndicator size="large" color="#fff" />
+              ) : (
+                <View
+                  style={[
+                    styles.recordIndicator,
+                    isRecording && styles.recordingIndicator,
+                  ]}
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
 
         <Text style={styles.statusText}>
           {isRecording
@@ -179,6 +198,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+  },
+  recordButtonContainer: {
+    width: 84,
+    height: 84,
+    justifyContent: "center",
+    alignItems: "center",
   },
   recordButton: {
     width: 84,
