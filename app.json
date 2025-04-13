@@ -8,11 +8,16 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#121212"
     },
     "scheme": "whatsupgrinnell",
     "ios": {
-      "bundleIdentifier": "com.anonymous.whatsupgrinnell"
+      "bundleIdentifier": "com.grinnellhackerhouse.whatsupgrinnell",
+      "buildNumber": "1.0.0",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone."
+      }
     },
     "plugins": [
       "expo-router",
