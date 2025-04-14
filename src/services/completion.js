@@ -85,7 +85,7 @@ export async function generateCompletionWithTools(prompt, responseFormat = null)
       This means most of the time your lines should be a sentence or two, 
       unless the user's request requires reasoning or long-form outputs. 
       Never use emojis, unless explicitly asked to. 
-      Current date: ${moment().toString()}
+      Current date: ${new Date().toISOString()}
     `},
     { role: "user", content: prompt }
   ];

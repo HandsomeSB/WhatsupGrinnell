@@ -24,7 +24,7 @@ export default function EventDetails() {
   const { event } = useLocalSearchParams();
   const parsedEvent = JSON.parse(event);
 
-  const eventDate = moment(parsedEvent.pubDate, "ddd, DD MMM YYYY HH:mm:ss ZZ").toDate();
+  const eventDate = new Date(parsedEvent.pubDate);
   const eventDateString = eventDate.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",

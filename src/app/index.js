@@ -16,7 +16,7 @@ import moment from 'moment';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDate, setSelectedDate] = useState(moment());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const router = useRouter();
 
   const handleSearch = () => {

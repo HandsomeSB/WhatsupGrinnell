@@ -17,7 +17,7 @@ const cleanText = (text) => {
 };
 
 export default function EventItem({ event, onPress }) {
-  const eventDate = moment(event.pubDate, "ddd, DD MMM YYYY HH:mm:ss ZZ").toDate();
+  const eventDate = new Date(event.pubDate);
   const eventDateString = eventDate.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",

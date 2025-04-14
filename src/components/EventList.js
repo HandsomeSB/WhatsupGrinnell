@@ -38,7 +38,7 @@ export default function EventList({ selectedDate }) {
   const filterEventsByDate = (events) => {
     if (!selectedDate) return events;
 
-    const selectedDateStr = moment(selectedDate).format("YYYY-MM-DD");
+    const selectedDateStr = moment(selectedDate).toDate().toDateString();
     return events.filter((section) => section.title === selectedDateStr);
   };
 

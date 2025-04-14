@@ -33,7 +33,8 @@ export async function fetchGrinnellChamberRSSDateReduced() {
         const events = (await fetchGrinnellChamberRSS()).rss.channel.item;
         const grouped = events.reduce(
             (acc, event) => {
-                const eventDate = moment(event.pubDate, "ddd, DD MMM YYYY HH:mm:ss Z", true).format("YYYY-MM-DD"); // Group by date
+                event.pubDate = moment(event.pubDate, "ddd, DD MMM YYYY HH:mm:ss Z", true).toDate().toISOString(); // Convert to ISO string
+                const eventDate = new Date(event.pubDate).toDateString();
                 if (!acc[eventDate]) {
                     acc[eventDate] = [];
                 }

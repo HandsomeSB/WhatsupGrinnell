@@ -62,7 +62,6 @@ export default function Results() {
 
         // Add specific instructions for JSON format
         const searchQuery = `Please search for events matching: "${query}". Return results in JSON format.`;
-
         const results = await generateCompletionWithTools(
           searchQuery,
           jsonSchema
