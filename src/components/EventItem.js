@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
+import moment from 'moment';
 
 const cleanText = (text) => {
   return text
@@ -16,7 +17,7 @@ const cleanText = (text) => {
 };
 
 export default function EventItem({ event, onPress }) {
-  const eventDate = new Date(event.pubDate);
+  const eventDate = moment(event.pubDate, "ddd, DD MMM YYYY HH:mm:ss ZZ").toDate();
   const eventDateString = eventDate.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",

@@ -1,4 +1,5 @@
 import { fetchGrinnellChamberRSS, updateAndGetCachedRSS } from "../services/chamberRSS";
+import moment from 'moment';
 
 /**
  * Gets events happening on a given date range
@@ -10,19 +11,14 @@ async function getEventsFromDate(startDate, endDate) {
   const events = await fetchGrinnellChamberRSS();
   
   // Convert input date to Date object if it isn't already
-  startDate = new Date(startDate);
-  endDate = new Date(endDate);
+  startDate = moment(startDate, "ddd, DD MMM YYYY HH:mm:ss Z", true);
+  endDate = moment(endDate, "ddd, DD MMM YYYY HH:mm:ss Z", true);
   
   return events.rss.channel.item.filter(event => {
     // Convert RSS pubDate to Date object
-    const eventDate = new Date(event.pubDate);
-
-    // Inclusive range
-    let inrange = (val, a, b) => {
-      return val >= a && val <= b;
-    }
+    const eventDate = moment(event.pubDate, "ddd, DD MMM YYYY HH:mm:ss Z", true);
     
-    return eventDate >= startDate && eventDate <= endDate;
+    return eventDate.isSameOrAfter(startDate) && eventDate.isSameOrBefore(endDate);
   });
 }
 
@@ -35,13 +31,13 @@ async function getEventsFromDate(startDate, endDate) {
 async function getEventsFromDateCached(startDate, endDate) {
   const events = await updateAndGetCachedRSS();
 
-  startDate = new Date(startDate);
-  endDate = new Date(endDate);
+  startDate = moment(startDate, "ddd, DD MMM YYYY HH:mm:ss Z", true);
+  endDate = moment(endDate, "ddd, DD MMM YYYY HH:mm:ss Z", true);
   
   let output = [];
 
   events.forEach(eventDay => {
-    const eventDate = new Date(eventDay["title"]);
+    const eventDate = moment(eventDay["title"], "ddd, DD MMM YYYY HH:mm:ss Z", true);
     if (eventDate >= startDate && eventDate <= endDate) {
       output.push(eventDay);
     }

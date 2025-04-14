@@ -12,10 +12,11 @@ import {
 import { Stack, useRouter } from "expo-router";
 import EventList from "../components/EventList";
 import DateSelector from "../components/DateSelector";
+import moment from 'moment';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(moment());
   const router = useRouter();
 
   const handleSearch = () => {

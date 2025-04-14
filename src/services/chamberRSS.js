@@ -2,6 +2,7 @@ import axios from 'axios';
 const { XMLParser } = require('fast-xml-parser');
 const parser = new XMLParser();
 import { storeData, getData } from '../utils/basicStorage';
+import moment from 'moment';
 
 /**
  * Fetches and parses the Grinnell Chamber RSS feed
@@ -32,14 +33,14 @@ export async function fetchGrinnellChamberRSSDateReduced() {
         const events = (await fetchGrinnellChamberRSS()).rss.channel.item;
         const grouped = events.reduce(
             (acc, event) => {
-                const eventDate = new Date(event.pubDate).toDateString(); // Group by date
+                const eventDate = moment(event.pubDate, "ddd, DD MMM YYYY HH:mm:ss Z", true).format("YYYY-MM-DD"); // Group by date
                 if (!acc[eventDate]) {
                     acc[eventDate] = [];
                 }
                 acc[eventDate].push(event);
                 return acc;
             }, {});
-    
+
         return Object.keys(grouped).map((date) => ({
             title: date,
             data: grouped[date],

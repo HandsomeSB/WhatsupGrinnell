@@ -3,6 +3,8 @@ import { OPENAI_API_KEY } from '@env';
 import OpenAI from 'openai';
 import { ToolsCollection } from '../models/toolsCollection';
 import { getEventsFromDateCached } from '../models/tools';
+import moment from 'moment';
+
 // Important:
 // You should never expose any secrets in the bundle of a web or mobile app. The correct usage of this client package is with a backend that proxies the OpenAI call while making sure access is secured. The baseURL parameter for this OpenAI client is thus mandatory. If you set the baseURL to https://api.openai.com/v1, you are basically exposing your OpenAI API key on the internet! This example in this repo uses Backmesh.
 const openai = new OpenAI({
@@ -83,7 +85,7 @@ export async function generateCompletionWithTools(prompt, responseFormat = null)
       This means most of the time your lines should be a sentence or two, 
       unless the user's request requires reasoning or long-form outputs. 
       Never use emojis, unless explicitly asked to. 
-      Current date: ${new Date().toISOString()}
+      Current date: ${moment().toString()}
     `},
     { role: "user", content: prompt }
   ];

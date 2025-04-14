@@ -10,7 +10,9 @@ import {
 import EventItem from "./EventItem";
 import { updateAndGetCachedRSS } from "../services/chamberRSS";
 import { useRouter } from "expo-router";
+import moment from "moment";
 
+// NOTE, selectedDate is a Date() object
 export default function EventList({ selectedDate }) {
   const [groupedEvents, setGroupedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,7 @@ export default function EventList({ selectedDate }) {
   useEffect(() => {
     const fetchEvents = async () => {
       const eventsByDate = await updateAndGetCachedRSS();
-      console.log("Fetched events:", eventsByDate);
+
       setGroupedEvents(eventsByDate);
       setLoading(false);
     };
@@ -36,7 +38,7 @@ export default function EventList({ selectedDate }) {
   const filterEventsByDate = (events) => {
     if (!selectedDate) return events;
 
-    const selectedDateStr = selectedDate.toDateString();
+    const selectedDateStr = moment(selectedDate).format("YYYY-MM-DD");
     return events.filter((section) => section.title === selectedDateStr);
   };
 
