@@ -3,6 +3,10 @@ import { polyfillGlobal } from "react-native/Libraries/Utilities/PolyfillFunctio
 import { ReadableStream } from "web-streams-polyfill";
 import { fetch, Headers, Request, Response } from "react-native-fetch-api";
 import { TextEncoder } from "text-encoding";
+import { enableScreens } from 'react-native-screens';
+
+// Enable native screens
+enableScreens();
 
 // Polyfill ReadableStream
 polyfillGlobal("ReadableStream", () => ReadableStream);
@@ -27,4 +31,4 @@ polyfillGlobal("Response", () => Response);
 polyfillGlobal("TextEncoder", () => TextEncoder);
 
 // Import the main app entry point
-import "expo-router/entry"; 
+import "expo-router/entry";
