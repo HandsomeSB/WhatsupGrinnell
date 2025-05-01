@@ -13,10 +13,10 @@
     "scheme": "whatsupgrinnell",
     "ios": {
       "bundleIdentifier": "com.grinnellhackerhouse.whatsupgrinnell",
-      "buildNumber": "1.0.2",
+      "buildNumber": "1.0.4",
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone.",
+        "NSMicrophoneUsageDescription": "WhatsupGrinnell needs access to your microphone to record voice search queries, transcribe your speech into text, and provide summarized responses.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -25,7 +25,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+          "microphonePermission": "WhatsupGrinnell needs access to your microphone to record voice search queries, transcribe speech to text, and provide summarized responses."
         }
       ]
     ],
