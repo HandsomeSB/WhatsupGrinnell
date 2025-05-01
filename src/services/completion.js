@@ -103,14 +103,21 @@ export async function generateCompletionWithTools(
     { role: "user", content: prompt },
   ];
 
-  let response = await openai.responses.create({
-    model: "gpt-4o",
-    input: input,
-    tools: tc.getTools(),
-    tool_choice: "auto",
+  let response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      input: input,
+      tools: tc.getTools(),
+      tool_choice: "auto",
+    }),
   });
 
-  const output = response.output;
+  const output = await response.json().output;
   const toolCalls = output.filter((item) => item.type === "function_call");
 
   if (toolCalls.length > 0) {
@@ -128,16 +135,25 @@ export async function generateCompletionWithTools(
       });
     }
 
-    response = await openai.responses.create({
-      model: "gpt-4o-mini-2024-07-18",
-      input: input,
-      text: {
-        format: responseFormat ? responseFormat : { type: "text" },
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
+      body: JSON.stringify({
+        model: "gpt-4o-mini-2024-07-18",
+        input: input,
+        text: {
+          format: responseFormat ? responseFormat : { type: "text" },
+        },
+      }),
     });
+
+    response = await response.json();
   }
 
-  return response.output_text;
+  return response.output[0].content[0].text;
 }
 
 /**
